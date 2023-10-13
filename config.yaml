@@ -1,0 +1,4 @@
+DATA_PATH: <change_to_your_data_path>
+OPENAI_KEY: <change_to_your_openai_key>
+PALM_KEY: none
+LOGIT_PATH: <change_to_your_logit_path>
