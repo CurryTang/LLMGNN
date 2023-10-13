@@ -9,7 +9,11 @@ In recent years, there have been remarkable advancements in node classification 
 
 
 ## Environment Setups
+```
+conda env create -f environment.yml --name new_environment_name
+```
 
+Note: since the [faiss-gpu](https://github.com/facebookresearch/faiss/blob/main/INSTALL.md) has some conflicts because of the low version of GLIBC on the server, it's not included in this environment and I use it to generate centroids efficiently for large-scale graphs. I'll share the precomputed files later. 
 
 
 ## How to use this repo and run the code
@@ -19,6 +23,13 @@ There are two main parts of our code
 2. GNN training
 
 The pipeline works as follows: 
+1. `get_dataset` in `data.py`: get the pt data file, use `llm.py` to generate annotations. The indexes selected by active learning and corresponding annotations will be returned. We use the cache to store all the output annotations. `-1` is a sentinel for null annotation. 
+2. `main.py`: train the GNN models. For large-scale training, we do not use the batch version, but pre-compute all intermediate results. 
+
+An example: 
+```
+python3 src/main.py --dataset products --model_name AdjGCN --data_format sbert --main_seed_num 1 --split active --output_intermediate 0 --no_val 1 --strategy pagerank2 --debug 1 --total_budget 940 --filter_strategy consistency --loss_type ce --second_filter conf+entropy --epochs 50 --debug_gt_label 0 --early_stop_start 150 --filter_all_wrong_labels 0 --oracle 1 --ratio 0.2 --alpha 0.33 --beta 0.33
+```
 
 
 
