@@ -15,6 +15,7 @@ conda env create -f environment.yml --name new_environment_name
 
 Note: since the [faiss-gpu](https://github.com/facebookresearch/faiss/blob/main/INSTALL.md) has some conflicts because of the low version of GLIBC on the server, it's not included in this environment and I use it to generate centroids efficiently for large-scale graphs. I'll share the precomputed files later. 
 
+## About the data
 
 ## How to use this repo and run the code
 
@@ -34,4 +35,4 @@ python3 src/main.py --dataset products --model_name AdjGCN --data_format sbert -
 
 
 ## Notes
-In the beginning, I tried to maintain a good coding style 😇, but later on, due to my mental state before the deadline, I failed 😓. I'll optimize the code structure when I have more time ⏳.
+I'll optimize the code structure when I have more time ⏳.
