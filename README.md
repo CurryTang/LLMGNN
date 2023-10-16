@@ -8,12 +8,22 @@ In recent years, there have been remarkable advancements in node classification 
 ![Pipeline demo](./imgs/pipeline.png)
 
 
-## Environment Setups
-```
-conda env create -f environment.yml --name new_environment_name
-```
+**NOTES:The following documentation is still under construction, I will upload some pickled intermediate results so you may get some results without querying the OpenAI API**
 
-Note: since the [faiss-gpu](https://github.com/facebookresearch/faiss/blob/main/INSTALL.md) has some conflicts because of the low version of GLIBC on the server, it's not included in this environment and I use it to generate centroids efficiently for large-scale graphs. I'll share the precomputed files later. 
+## Environment Setups
+
+~~conda env create -f environment.yml --name new_environment_name~~
+First,
+```
+pip install -r requirements.txt
+```
+then, I recommend installing gpu-related libraries manually (you should choose the version compatible with your GLIBC and cuda)
+```
+pip3 install torch torchvision torchaudio
+```
+and also torch-geometric according to [install](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html)
+
+
 
 ## About the data
 
