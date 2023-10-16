@@ -13,6 +13,7 @@ In recent years, there have been remarkable advancements in node classification 
 ## Environment Setups
 
 ~~conda env create -f environment.yml --name new_environment_name~~
+
 First,
 ```
 pip install -r requirements.txt
