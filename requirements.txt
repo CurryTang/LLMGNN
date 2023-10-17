@@ -1,7 +1,6 @@
 aiohttp==3.8.5
 dgl==1.1.1
 editdistance==0.6.2
-faiss-cpu==1.7.1
 h5py==3.9.0
 ipdb==0.13.13
 kmedoids==0.4.3
