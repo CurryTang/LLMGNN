@@ -23,6 +23,10 @@ then, I recommend installing gpu-related libraries manually (you should choose t
 pip3 install torch torchvision torchaudio
 ```
 and also torch-geometric according to [install](https://pytorch-geometric.readthedocs.io/en/latest/install/installation.html)
+```
+https://github.com/facebookresearch/faiss/blob/main/INSTALL.md
+```
+and finally install faiss
 
 
 
