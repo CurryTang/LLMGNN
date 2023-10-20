@@ -31,6 +31,18 @@ and finally install faiss
 
 
 ## About the data
+### Dataset 
+We have provided the processed datasets via the following [google drive link](https://drive.google.com/drive/folders/1_laNA6eSQ6M5td2LvsEp3IL9qF6BC1KV?usp=sharing)
+
+To unzip the files, you need to
+1. unzip the `small_data.zip` into `preprocessed_data/new`
+2. If you want to use ogbn-products, unzip `big_data.zip` info `preprocessed_data/new`
+3. Download and move `*_explanation.pt` and `*_pl.pt` into `preprocessed_data/new`. These files are related to TAPE.
+4. unzip the `ada.zip` into `./`
+5. Move `*_entity.pt` into `./`
+6. Put `ogb_arxiv.csv` into `./preprocessed_data`
+7. Set the corresponding path in `config.yaml`
+
 
 ## How to use this repo and run the code
 
