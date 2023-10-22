@@ -6,10 +6,13 @@ from helper.utils import load_yaml
 import torch
 import ipdb
 import os.path as osp
+from helper.active import GLOBAL_RESULT_PATH
 
 datasets = ['cora']
 
 ## precompute the density_aax on gpu for all datasets
+
+PATH = GLOBAL_RESULT_PATH
 
 class Cluster:
     """
@@ -116,10 +119,10 @@ if __name__ == '__main__':
         centers_5 = torch.tensor(centers_5, dtype=x.dtype, device=x.device)
         centers_6 = torch.tensor(centers_6, dtype=x.dtype, device=x.device)
         centers_7 = torch.tensor(centers_7, dtype=x.dtype, device=x.device)
-        torch.save(centers_1, osp.join("../../ogb/preprocessed_data/aax", 'center_x_{}_{}.pt'.format(num_nodes, cluster_1)))
-        torch.save(centers_2, osp.join("../../ogb/preprocessed_data/aax", 'center_x_{}_{}.pt'.format(num_nodes, cluster_2)))
-        torch.save(centers_3, osp.join("../../ogb/preprocessed_data/aax", 'center_x_{}_{}.pt'.format(num_nodes, cluster_3)))
-        torch.save(centers_4, osp.join("../../ogb/preprocessed_data/aax", 'center_x_{}_{}.pt'.format(num_nodes, cluster_4)))
+        torch.save(centers_1, osp.join(PATH, 'center_x_{}_{}.pt'.format(num_nodes, cluster_1)))
+        torch.save(centers_2, osp.join(PATH, 'center_x_{}_{}.pt'.format(num_nodes, cluster_2)))
+        torch.save(centers_3, osp.join(PATH, 'center_x_{}_{}.pt'.format(num_nodes, cluster_3)))
+        torch.save(centers_4, osp.join(PATH, 'center_x_{}_{}.pt'.format(num_nodes, cluster_4)))
 
         ## save x density
         label1 = cluster_model_1.predict(x)
@@ -164,13 +167,13 @@ if __name__ == '__main__':
         density_6 = 1 / (1 + dist_map_6)
         dist_map_7 = torch.tensor(dist_map_7, dtype=x.dtype, device=x.device)
         density_7 = 1 / (1 + dist_map_7)
-        torch.save(density_1, osp.join("../../ogb/preprocessed_data/aax", 'density_x_{}_{}.pt'.format(num_nodes, cluster_1)))
-        torch.save(density_2, osp.join("../../ogb/preprocessed_data/aax", 'density_x_{}_{}.pt'.format(num_nodes, cluster_2)))
-        torch.save(density_3, osp.join("../../ogb/preprocessed_data/aax", 'density_x_{}_{}.pt'.format(num_nodes, cluster_3)))
-        torch.save(density_4, osp.join("../../ogb/preprocessed_data/aax", 'density_x_{}_{}.pt'.format(num_nodes, cluster_4)))
-        torch.save(density_5, osp.join("../../ogb/preprocessed_data/aax", 'density_x_{}_{}.pt'.format(num_nodes, cluster_5)))
-        torch.save(density_6, osp.join("../../ogb/preprocessed_data/aax", 'density_x_{}_{}.pt'.format(num_nodes, cluster_6)))
-        torch.save(density_7, osp.join("../../ogb/preprocessed_data/aax", 'density_x_{}_{}.pt'.format(num_nodes, cluster_7)))
+        torch.save(density_1, osp.join(PATH, 'density_x_{}_{}.pt'.format(num_nodes, cluster_1)))
+        torch.save(density_2, osp.join(PATH, 'density_x_{}_{}.pt'.format(num_nodes, cluster_2)))
+        torch.save(density_3, osp.join(PATH, 'density_x_{}_{}.pt'.format(num_nodes, cluster_3)))
+        torch.save(density_4, osp.join(PATH, 'density_x_{}_{}.pt'.format(num_nodes, cluster_4)))
+        torch.save(density_5, osp.join(PATH, 'density_x_{}_{}.pt'.format(num_nodes, cluster_5)))
+        torch.save(density_6, osp.join(PATH, 'density_x_{}_{}.pt'.format(num_nodes, cluster_6)))
+        torch.save(density_7, osp.join(PATH, 'density_x_{}_{}.pt'.format(num_nodes, cluster_7)))
 
 
         aax = compute_norm_aax(x, data.edge_index, num_nodes)
@@ -201,13 +204,13 @@ if __name__ == '__main__':
         centers_5 = torch.tensor(centers_5, dtype=x.dtype, device=x.device)
         centers_6 = torch.tensor(centers_6, dtype=x.dtype, device=x.device)
         centers_7 = torch.tensor(centers_7, dtype=x.dtype, device=x.device)
-        torch.save(centers_1, osp.join("../../ogb/preprocessed_data/aax", 'center_aax_{}_{}.pt'.format(num_nodes, cluster_1)))
-        torch.save(centers_2, osp.join("../../ogb/preprocessed_data/aax", 'center_aax_{}_{}.pt'.format(num_nodes, cluster_2)))
-        torch.save(centers_3, osp.join("../../ogb/preprocessed_data/aax", 'center_aax_{}_{}.pt'.format(num_nodes, cluster_3)))
-        torch.save(centers_4, osp.join("../../ogb/preprocessed_data/aax", 'center_aax_{}_{}.pt'.format(num_nodes, cluster_4)))
-        torch.save(centers_5, osp.join("../../ogb/preprocessed_data/aax", 'center_aax_{}_{}.pt'.format(num_nodes, cluster_5)))
-        torch.save(centers_6, osp.join("../../ogb/preprocessed_data/aax", 'center_aax_{}_{}.pt'.format(num_nodes, cluster_6)))
-        torch.save(centers_7, osp.join("../../ogb/preprocessed_data/aax", 'center_aax_{}_{}.pt'.format(num_nodes, cluster_7)))
+        torch.save(centers_1, osp.join(PATH, 'center_aax_{}_{}.pt'.format(num_nodes, cluster_1)))
+        torch.save(centers_2, osp.join(PATH, 'center_aax_{}_{}.pt'.format(num_nodes, cluster_2)))
+        torch.save(centers_3, osp.join(PATH, 'center_aax_{}_{}.pt'.format(num_nodes, cluster_3)))
+        torch.save(centers_4, osp.join(PATH, 'center_aax_{}_{}.pt'.format(num_nodes, cluster_4)))
+        torch.save(centers_5, osp.join(PATH, 'center_aax_{}_{}.pt'.format(num_nodes, cluster_5)))
+        torch.save(centers_6, osp.join(PATH, 'center_aax_{}_{}.pt'.format(num_nodes, cluster_6)))
+        torch.save(centers_7, osp.join(PATH, 'center_aax_{}_{}.pt'.format(num_nodes, cluster_7)))
 
         ## save aax density
         label1 = cluster_model_1.predict(aax)
@@ -253,11 +256,11 @@ if __name__ == '__main__':
         density_6 = 1 / (1 + dist_map_6)
         dist_map_7 = torch.tensor(dist_map_7, dtype=x.dtype, device=x.device)
         density_7 = 1 / (1 + dist_map_7)
-        torch.save(density_1, osp.join("../../ogb/preprocessed_data/aax", 'density_aax_{}_{}.pt'.format(num_nodes, cluster_1)))
-        torch.save(density_2, osp.join("../../ogb/preprocessed_data/aax", 'density_aax_{}_{}.pt'.format(num_nodes, cluster_2)))
-        torch.save(density_3, osp.join("../../ogb/preprocessed_data/aax", 'density_aax_{}_{}.pt'.format(num_nodes, cluster_3)))
-        torch.save(density_4, osp.join("../../ogb/preprocessed_data/aax", 'density_aax_{}_{}.pt'.format(num_nodes, cluster_4)))
-        torch.save(density_5, osp.join("../../ogb/preprocessed_data/aax", 'density_aax_{}_{}.pt'.format(num_nodes, cluster_5)))
-        torch.save(density_6, osp.join("../../ogb/preprocessed_data/aax", 'density_aax_{}_{}.pt'.format(num_nodes, cluster_6)))
-        torch.save(density_7, osp.join("../../ogb/preprocessed_data/aax", 'density_aax_{}_{}.pt'.format(num_nodes, cluster_7)))
+        torch.save(density_1, osp.join(PATH, 'density_aax_{}_{}.pt'.format(num_nodes, cluster_1)))
+        torch.save(density_2, osp.join(PATH, 'density_aax_{}_{}.pt'.format(num_nodes, cluster_2)))
+        torch.save(density_3, osp.join(PATH, 'density_aax_{}_{}.pt'.format(num_nodes, cluster_3)))
+        torch.save(density_4, osp.join(PATH, 'density_aax_{}_{}.pt'.format(num_nodes, cluster_4)))
+        torch.save(density_5, osp.join(PATH, 'density_aax_{}_{}.pt'.format(num_nodes, cluster_5)))
+        torch.save(density_6, osp.join(PATH, 'density_aax_{}_{}.pt'.format(num_nodes, cluster_6)))
+        torch.save(density_7, osp.join(PATH, 'density_aax_{}_{}.pt'.format(num_nodes, cluster_7)))
         # import ipdb; ipdb.set_trace()
