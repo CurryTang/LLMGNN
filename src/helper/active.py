@@ -34,6 +34,8 @@ warnings.simplefilter("ignore")
 
 # import faiss
 
+GLOBAL_RESULT_PATH = "xxx/data/aax"
+
 class Cluster:
     """
     Kmeans Clustering
@@ -87,7 +89,7 @@ def density_query(b, x_embed, n_cluster, train_mask, seed, data, device):
     # Perform K-Means as approximation
     seed_everything(seed)
     num_nodes = x_embed.shape[0]
-    cache_path = osp.join("../../../ogb/preprocessed_data/aax", 'density_x_{}_{}.pt'.format(num_nodes, n_cluster))
+    cache_path = osp.join(GLOBAL_RESULT_PATH, 'density_x_{}_{}.pt'.format(num_nodes, n_cluster))
     if os.path.exists(cache_path):
         density = torch.load(cache_path, map_location='cpu')
     else:
@@ -112,7 +114,7 @@ def density_query(b, x_embed, n_cluster, train_mask, seed, data, device):
 
 
 def budget_density_query(b, x_embed, train_mask, seed, data, device):
-    density = torch.load("../../../ogb/preprocessed_data/aax/density_x_{}_{}.pt".format(x_embed.shape[0], b))
+    density = torch.load("{}/density_x_{}_{}.pt".format(GLOBAL_RESULT_PATH, x_embed.shape[0], b))
 
     if hasattr(data, 'drop_idx'):
         density[data.drop_idx] = 0
@@ -122,7 +124,7 @@ def budget_density_query(b, x_embed, train_mask, seed, data, device):
     return indices, density
 
 def budget_density_query2(b, x_embed, train_mask, seed, data, device):
-    density = torch.load("../../../ogb/preprocessed_data/aax/density_x_{}_{}.pt".format(x_embed.shape[0], b))
+    density = torch.load("{}/density_x_{}_{}.pt".format(GLOBAL_RESULT_PATH, x_embed.shape[0], b))
     N = x_embed.shape[0]
 
 
@@ -134,7 +136,7 @@ def budget_density_query2(b, x_embed, train_mask, seed, data, device):
     density[id_sorted] = percentile
 
     n_classes = data.y.max().item() + 1
-    density2 = torch.load("../../../ogb/preprocessed_data/aax/density_x_{}_{}.pt".format(x_embed.shape[0], n_classes))
+    density2 = torch.load("{}/density_x_{}_{}.pt".format(GLOBAL_RESULT_PATH, x_embed.shape[0], n_classes))
     if hasattr(data, 'drop_idx'):
         density2[data.drop_idx] = 0
     id_sorted = density2.argsort(descending=False)
@@ -197,8 +199,8 @@ def pagerank_query(b, train_mask, data, seed):
 
 
 def compute_pagerank(data, num_nodes, device):
-    if osp.exists("../../../ogb/preprocessed_data/aax/page_{}.pt".format(num_nodes)):
-        page = torch.load("../../../ogb/preprocessed_data/aax/page_{}.pt".format(num_nodes))
+    if osp.exists("{}/page_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes)):
+        page = torch.load("{}/page_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes))
         return page 
     else:
         edges = [(int(i), int(j)) for i, j in zip(data.edge_index[0], data.edge_index[1])]
@@ -207,7 +209,7 @@ def compute_pagerank(data, num_nodes, device):
         data.g.add_nodes_from(nodes)
         data.g.add_edges_from(edges)
         page = torch.tensor(list(pagerank(data.g).values()), dtype = data.x.dtype, device=device)
-        torch.save(page, "../../../ogb/preprocessed_data/aax/page_{}.pt".format(num_nodes))
+        torch.save(page, "{}/page_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes))
         return page
 
 
@@ -222,7 +224,7 @@ def degree2_query(b, x, data, train_mask, seed, device):
 
     row_index = data.edge_index[0]
     degree = degree_cal(row_index, num_nodes=data.x.shape[0], dtype=x.dtype)
-    density_path = osp.join("../../../ogb/preprocessed_data/aax", 'density_x_{}_{}.pt'.format(num_nodes, b))
+    density_path = osp.join(GLOBAL_RESULT_PATH, 'density_x_{}_{}.pt'.format(num_nodes, b))
     density = torch.load(density_path, map_location='cpu')
     if hasattr(data, 'drop_idx'):
         density[data.drop_idx] = 0
@@ -248,7 +250,7 @@ def pg2_query(b, x, data, train_mask, seed, device):
     page = compute_pagerank(data, num_nodes, device)
     N = x.shape[0]
 
-    density_path = osp.join("../../../ogb/preprocessed_data/aax", 'density_x_{}_{}.pt'.format(num_nodes, b))
+    density_path = osp.join(GLOBAL_RESULT_PATH, 'density_x_{}_{}.pt'.format(num_nodes, b))
     density = torch.load(density_path, map_location='cpu')
     if hasattr(data, 'drop_idx'):
         density[data.drop_idx] = 0
@@ -278,7 +280,7 @@ def age_query(b, x, data, train_mask, seed, device):
     page = compute_pagerank(data, num_nodes, device)
     N = x.shape[0]
 
-    density_path = osp.join("../../../ogb/preprocessed_data/aax", 'density_aax_{}_{}.pt'.format(num_nodes, b))
+    density_path = osp.join(GLOBAL_RESULT_PATH, 'density_aax_{}_{}.pt'.format(num_nodes, b))
     aax_density = torch.load(density_path, map_location='cpu')
     # Get percentile
     percentile = (torch.arange(N, dtype=x.dtype, device=device) / N)
@@ -305,10 +307,10 @@ def age_query2(b, x, data, train_mask, seed, device):
     page = compute_pagerank(data, num_nodes, device)
     N = x.shape[0]
 
-    density_path = osp.join("../../../ogb/preprocessed_data/aax", 'density_aax_{}_{}.pt'.format(num_nodes, b))
+    density_path = osp.join(GLOBAL_RESULT_PATH, 'density_aax_{}_{}.pt'.format(num_nodes, b))
     aax_density = torch.load(density_path, map_location='cpu').to(device)
 
-    d_path = osp.join("../../../ogb/preprocessed_data/aax", 'density_x_{}_{}.pt'.format(num_nodes, num_classes))
+    d_path = osp.join(GLOBAL_RESULT_PATH, 'density_x_{}_{}.pt'.format(num_nodes, num_classes))
     density = torch.load(d_path, map_location='cpu').to(device)
     if hasattr(data, 'drop_idx'):
         density[data.drop_idx] = 0
@@ -341,13 +343,13 @@ def featprop_query(b, x, edge_index, train_mask, seed, device):
     # adj_matrix2 = adj.matmul(adj)
     # aax = adj_matrix2.matmul(x)
     # aax_dense = aax.to_dense()
-    if not osp.exists("../../../ogb/preprocessed_data/aax/km_{}_{}.pt".format(num_nodes, b)):
+    if not osp.exists("{}/km_{}_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes, b)):
         aax_dense = compute_norm_aax(x, edge_index, num_nodes)
         # aax_dense[np.where(train_mask == 0)[0]] = 0
         distmat = euclidean_distances(aax_dense.cpu().numpy())
         km = kmedoids.fasterpam(distmat, b)
     else:
-        km = torch.load("../../../ogb/preprocessed_data/aax/km_{}_{}.pt".format(num_nodes, b), map_location='cpu')
+        km = torch.load("{}/km_{}_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes, b), map_location='cpu')
 
     # c = km.fit(aax_dense)
     # indices = c.medoid_indices_
@@ -372,14 +374,14 @@ def cluster2_query(b, x, data, edge_index, train_mask, seed, device):
     # Perform K-Means clustering:
     num_nodes = x.shape[0]
     _, density = density_query(b, x, data.y.max().item() + 1, train_mask, seed, device)
-    if osp.exists("../../../ogb/preprocessed_data/aax/center_{}_{}.pt".format(num_nodes, b)):
-        centers = torch.load("../../../ogb/preprocessed_data/aax/center_{}_{}.pt".format(num_nodes, b))
+    if osp.exists("{}/center_{}_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes, b)):
+        centers = torch.load("{}/center_{}_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes, b))
     else:
         aax = compute_norm_aax(x, edge_index, num_nodes)
         kmeans = Cluster(n_clusters=b, n_dim=x.shape[1], seed=seed, device=device)
         kmeans.train(aax.cpu().numpy())
         centers = torch.tensor(kmeans.get_centroids(), dtype=aax.dtype, device=aax.device)
-        torch.save(centers, "../../../ogb/preprocessed_data/aax/center_{}_{}.pt".format(num_nodes, b))
+        torch.save(centers, "{}/center_{}_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes, b))
 
     if hasattr(data, 'drop_idx'):
         density[data.drop_idx] = 0
@@ -406,13 +408,13 @@ def cluster_query(b, x, edge_index, train_mask, seed, device):
     num_nodes = x.shape[0]
     aax = compute_norm_aax(x, edge_index, num_nodes)
     # import ipdb; ipdb.set_trace()
-    if osp.exists("../../../ogb/preprocessed_data/aax/center_aax_{}_{}.pt".format(num_nodes, b)):
-        centers = torch.load("../../../ogb/preprocessed_data/aax/center_aax_{}_{}.pt".format(num_nodes, b), map_location='cpu')
+    if osp.exists("{}/center_aax_{}_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes, b)):
+        centers = torch.load("{}/aax/center_aax_{}_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes, b), map_location='cpu')
     else:
         kmeans = Cluster(n_clusters=b, n_dim=x.shape[1], seed=seed, device=device)
         kmeans.train(aax.cpu().numpy())
         centers = torch.tensor(kmeans.get_centroids(), dtype=aax.dtype, device=aax.device)
-        torch.save(centers, "../../../ogb/preprocessed_data/aax/center_aax_{}_{}.pt".format(num_nodes, b), map_location='cpu')
+        torch.save(centers, "{}/center_aax_{}_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes, b), map_location='cpu')
 
     # import ipdb; ipdb.set_trace()
     # Obtain the centers
@@ -489,7 +491,7 @@ def split_cluster(b, partitions, num_parts, num_centers, seed, device, x_embed=N
 def compute_norm_aax(x, edge_index, num_nodes):
     print("Start computing aax")
     # import ipdb; ipdb.set_trace()
-    cache_path = osp.join("../../../ogb/preprocessed_data/aax", 'aax_{}.pt'.format(num_nodes))
+    cache_path = osp.join(GLOBAL_RESULT_PATH, 'aax_{}.pt'.format(num_nodes))
     if os.path.exists(cache_path):
         res = torch.load(cache_path, map_location='cpu')
         return res
@@ -506,8 +508,8 @@ def compute_norm_aax(x, edge_index, num_nodes):
 
 def compute_density_aax(aax, num_nodes, b, device):
     print("Start computing density aax")
-    if osp.exists("../../../ogb/preprocessed_data/aax/density_aax_{}_{}.pt".format(num_nodes, b)):
-        aax_density = torch.load("../../../ogb/preprocessed_data/aax/density_aax_{}_{}.pt".format(num_nodes, b), map_location='cpu')
+    if osp.exists("{}/density_aax_{}_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes, b)):
+        aax_density = torch.load("{}/density_aax_{}_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes, b), map_location='cpu')
         return aax_density
     else:
         aax_kmeans = Cluster(n_clusters=b, n_dim=x.shape[1], seed=seed, device=device)
@@ -519,7 +521,7 @@ def compute_density_aax(aax, num_nodes, b, device):
         centers = torch.tensor(centers[label], dtype=aax.dtype, device=aax.device)
         dist_map = torch.linalg.norm(aax - centers, dim=1).to(aax.dtype)
         aax_density = 1 / (1 + dist_map)
-        torch.save(aax_density, "../../../ogb/preprocessed_data/aax/density_aax_{}_{}.pt".format(num_nodes, b))
+        torch.save(aax_density, "{}/density_aax_{}_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes, b))
         return aax_density
 
 
@@ -547,11 +549,11 @@ def gpart_query2(b, num_centers, data, train_mask, compensation, x_embed, seed, 
     part_size = split_cluster(b, partitions, num_parts, num_centers, seed, device, x_embed=x)
     num_classes = data.y.max().item() + 1
 
-    d_path = osp.join("../../../ogb/preprocessed_data/aax", 'density_x_{}_{}.pt'.format(num_nodes, num_classes))
+    d_path = osp.join(GLOBAL_RESULT_PATH, 'density_x_{}_{}.pt'.format(num_nodes, num_classes))
     density = torch.load(d_path, map_location='cpu').to(device)
     # Iterate over each partition
     # indices = list(np.where(train_mask != 0)[0])
-    # density_path = osp.join("../../../ogb/preprocessed_data/aax", 'density_aax_{}_{}.pt'.format(num_nodes, b))
+    # density_path = osp.join(GLOBAL_RESULT_PATH, 'density_aax_{}_{}.pt'.format(num_nodes, b))
     # aax_density = torch.load(density_path, map_location='cpu').to(device)
     
     
@@ -814,7 +816,7 @@ def update_reliability(idx_used,train_class,labels,num_node, reliability_list, o
 
 def compute_adj2(edge_index, num_nodes):
     print("Computing adj2")
-    cache_path = osp.join("../../../ogb/preprocessed_data/aax", 'adj2_{}.pt'.format(num_nodes))
+    cache_path = osp.join(GLOBAL_RESULT_PATH, 'adj2_{}.pt'.format(num_nodes))
     if os.path.exists(cache_path):
         res = torch.load(cache_path, map_location='cpu')
         return res
@@ -829,7 +831,7 @@ def compute_adj2(edge_index, num_nodes):
 
 def compute_sim(norm_aax, num_nodes):
     print("compute sim")
-    cache_path = osp.join("../../../ogb/preprocessed_data/aax", 'sim_{}.pt'.format(num_nodes))
+    cache_path = osp.join(GLOBAL_RESULT_PATH, 'sim_{}.pt'.format(num_nodes))
     if os.path.exists(cache_path):
         res = torch.load(cache_path, map_location='cpu')
         return res
@@ -946,7 +948,7 @@ def lrim_wrapper(b, edge_index, train_mask, data, oracle_acc, th, batch_size, re
     x_embed = data.x
     n_class = data.y.max().item() + 1
     if density_based:
-        density = torch.load("../../../ogb/preprocessed_data/aax/density_x_{}_{}.pt".format(x_embed.shape[0], n_class))
+        density = torch.load("{}/density_x_{}_{}.pt".format(GLOBAL_RESULT_PATH, x_embed.shape[0], n_class))
         density = (density - density.min()) / (density.max() - density.min())
         return rim_query(b, edge_index, train_mask, data, oracle_acc, th, batch_size, reliability_list, seed, prior = density)
     else:
@@ -957,7 +959,7 @@ def rim_wrapper(b, edge_index, train_mask, data, oracle_acc, th, batch_size, rel
     x_embed = data.x
     n_class = data.y.max().item() + 1
     if density_based:
-        density = torch.load("../../../ogb/preprocessed_data/aax/density_x_{}_{}.pt".format(x_embed.shape[0], n_class))
+        density = torch.load("{}/density_x_{}_{}.pt".format(GLOBAL_RESULT_PATH, x_embed.shape[0], n_class))
         density = (density - density.min()) / (density.max() - density.min())
         return rim_query(b, edge_index, train_mask, data, oracle_acc, th, batch_size, reliability_list, seed, prior = density)
     else:
@@ -1359,7 +1361,7 @@ def iterative_score(b, edge_index, oracle_acc, train_mask, data, th, reliability
     #                sparse_sizes=(num_nodes, num_nodes))
     n_clusters = data.y.max().item() + 1
     # _, density_score = density_query(b, data.x, n_clusters, train_mask, seed, device)
-    density_score = torch.load("../../../ogb/preprocessed_data/aax/density_x_{}_{}.pt".format(num_nodes, n_clusters))
+    density_score = torch.load("{}/density_x_{}_{}.pt".format(GLOBAL_RESULT_PATH, num_nodes, n_clusters))
 
     # # aax = adj.matmul(features).to_dense()
     # adj_matrix2 = adj.matmul(adj).to_dense()
