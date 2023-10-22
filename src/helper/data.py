@@ -14,7 +14,13 @@ import ipdb
 import os
 import torch_geometric.transforms as T
 from tqdm import tqdm
+from helper.active import GLOBAL_RESULT_PATH
 # from ..llm import query
+
+## better use absolute path
+LLM_PATH = "xxx/src/llm.py"
+PARTITIONS = "xxx/data/partitions"
+
 
 
 class LabelPerClassSplit:
@@ -206,7 +212,9 @@ def select_random_indices(tensor, portion):
 
 
 def run_active_learning(budget, strategy, filter_strategy, dataset, oracle_acc = 1, seed_num = 3, alpha = 0.1, beta = 0.1, gamma = 0.1):
-    os.system("python3 ../../../annotation/src/llm.py --total_budget {} --split active --main_seed_num {} --oracle {} --strategy {} --dataset {} --filter_strategy {} --no_val 1 --train_stage 0 --alpha {} --beta {} --gamma {}".format(budget, seed_num, oracle_acc, strategy, dataset, filter_strategy, alpha, beta, gamma))
+    print("Run active learning!")
+    # import ipdb; ipdb.set_trace()
+    os.system("python3 {} --total_budget {} --split active --main_seed_num {} --oracle {} --strategy {} --dataset {} --filter_strategy {} --no_val 1 --train_stage 0 --alpha {} --beta {} --gamma {}".format(LLM_PATH, budget, seed_num, oracle_acc, strategy, dataset, filter_strategy, alpha, beta, gamma))
 
 
 
@@ -232,13 +240,14 @@ def get_dataset(seeds, dataset, split, data_format, data_path, logit_path, rando
     if dataset == 'products':
         data.y = data.y.squeeze()
     if ('pl' in split or 'active' in split)  and 'noise' not in split and llm_strategy != 'none':
+        pl_data_path = osp.join(data_path, "active", f"{dataset}^cache^{llm_strategy}.pt")
         if train_stage:
+            ## CHECK DO WE NEED ANNOTATION
             if dataset == 'arxiv' or dataset == 'products':
                 run_active_learning(total_budget, strategy, llm_strategy, dataset, oracle_acc, seed_num = 1, alpha = alpha, beta = beta, gamma = gamma)
             else:
                 run_active_learning(total_budget, strategy, llm_strategy, dataset, oracle_acc, seed_num = seed_num, alpha = alpha, beta = beta, gamma = gamma)
             print("Annotation done!")
-        pl_data_path = osp.join(data_path, "active", f"{dataset}^cache^{llm_strategy}.pt")
         if not osp.exists(pl_data_path):
             pl_data = None
             pseudo_labels = None
@@ -247,7 +256,7 @@ def get_dataset(seeds, dataset, split, data_format, data_path, logit_path, rando
             pl_data = torch.load(pl_data_path, map_location='cpu')
             pseudo_labels = pl_data['pred']
             conf = pl_data['conf']
-            # reliability_list.append(conf)
+                        # reliability_list.append(conf)
         # if dataset == 'arxiv':
         #     pl_data = torch.load(osp.join(data_path, f"{dataset}_fixed_pl.pt"), map_location = 'cpu')
         # else:
@@ -466,8 +475,8 @@ def get_dataset(seeds, dataset, split, data_format, data_path, logit_path, rando
     print("fuck u")
     if dataset == 'products':
         ## optimize according to OGB
-        if osp.exists("../../../ogb/preprocessed_data/aax/products_adj.pt"):
-            adj_t = torch.load("../../../ogb/preprocessed_data/aax/products_adj.pt", map_location='cpu')
+        if osp.exists("{}/products_adj.pt".format(GLOBAL_RESULT_PATH)):
+            adj_t = torch.load("{}/products_adj.pt".format(GLOBAL_RESULT_PATH), map_location='cpu')
             data.adj_t = adj_t
         else:
             data = T.ToSparseTensor(remove_edge_index=False)(data)
@@ -479,7 +488,7 @@ def get_dataset(seeds, dataset, split, data_format, data_path, logit_path, rando
             deg_inv_sqrt[deg_inv_sqrt == float('inf')] = 0
             adj_t = deg_inv_sqrt.view(-1, 1) * adj_t * deg_inv_sqrt.view(1, -1)
             data.adj_t = adj_t
-            torch.save(adj_t, "../../../ogb/preprocessed_data/aax/products_adj.pt")
+            torch.save(adj_t,"{}/products_adj.pt".format(GLOBAL_RESULT_PATH))
         backup_device = data.x.device
         data = data.to(backup_device)
     # import ipdb; ipdb.set_trace()
@@ -612,7 +621,7 @@ def post_process(train_mask, data, conf, old_y, ratio = 0.3, strategy = 'conf_on
     num_classes = data.y.max().item() + 1
     N = num_nodes
     labels = data.y
-    density_path = osp.join("../../../ogb/preprocessed_data/aax", 'density_x_{}_{}.pt'.format(num_nodes, num_classes))
+    density_path = osp.join(GLOBAL_RESULT_PATH, 'density_x_{}_{}.pt'.format(num_nodes, num_classes))
     density = torch.load(density_path, map_location='cpu')
     if strategy == 'conf_only':
         conf[~train_mask] = 0
@@ -769,7 +778,8 @@ def graph_consistency_for_llm(budget, s_data, gt, filter_strategy = "none"):
 
 
 def gpart_preprocess(data, max_part, name = 'cora'):
-    filename = "../../../ogb/preprocessed_data/partitions/{}.pt".format(name)
+    #filename = "../../../ogb/preprocessed_data/partitions/{}.pt".format(name)
+    filename = osp.join(PARTITIONS, "{}.pt".format(name))
     if os.path.exists(filename):
         part = torch.load(filename)
         data.partitions = part
