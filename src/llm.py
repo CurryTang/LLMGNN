@@ -24,6 +24,7 @@ import seaborn as sns
 import ipdb 
 from helper.train_utils import calibration_plot
 import pandas as pd
+import sys
 
 pal = sns.color_palette("crest")
 sns.set_palette(pal)
@@ -147,20 +148,38 @@ class Experiment:
         fixed_grammar = 0
         g_error_idx = []
         cache = self.load_cache(dataset, key)
+        ## cache for openai result
         if cache != None:
             cache = cache.get(key, None)
+        ## cache for extracted annotation result, may present inconsistency with openai result
+        result_cache = self.load_saved(dataset, key)
+        result_cache_pred = result_cache['pred']
+        # import ipdb; ipdb.set_trace()
         valid_number = len([x for x in prompts if x != ""])
         input_filename = "prompt_async_input_{}_{}_temperature_{}_n_{}_input_seed_{}_{}.json".format(dataset, key, temperature, n, seed, valid_number)
         output_filename = "prompt_async_input_{}_{}_temperature_{}_n_{}_output_seed_{}_{}.json".format(dataset, key, temperature, n, seed, valid_number)
         # import ipdb; ipdb.set_trace()
         cache_hit = 0
+        result_cache_hit = 0
         for i in range(len(prompts)):
             if cache != None and cache[i] != "" and isinstance(cache[i], list) and prompts[i] != "" and not rewrite:
                 check_res, error_type, error_message = self.check_grammar(cache[i][0])
                 if check_res:
                     prompts[i] = ""
                     cache_hit += 1
+            else:
+                try:
+                    if result_cache_pred[i] != -1 and prompts[i] != "":
+                        prompts[i] = ""
+                        cache_hit += 1
+                        result_cache_hit += 1
+                except Exception:
+                    pass
+        # import ipdb; ipdb.set_trace()
         print("cache hit number: {}".format(cache_hit))
+        if result_cache_hit == len(select_ids):
+            print("All cache hit, no need to run the annotation")
+            sys.exit()
         openai_result = efficient_openai_text_api(prompts, input_filename, output_filename, sp, ss, api_key=self.api_key, temperature=temperature, n = n, rewrite = rewrite)
         # import ipdb; ipdb.set_trace()
         # if len(select_ids) - cache_hit >= 20:
@@ -170,7 +189,7 @@ class Experiment:
                 responses.append("")
                 continue
             # if key != 'consistency':
-            if cache != None and cache[i] != "" and res[0] == "":
+            if (cache != None and cache[i] != "" and res[0] == "") or (result_cache_pred[i] != -1 and res[0] == ""):
                 responses.append(cache[i])
                 continue
             # else:
@@ -793,6 +812,7 @@ def count_and_plot(tensor, tensor2, xtick_labels=None, output_name = "", title="
 
 if __name__ == '__main__':
     # ipdb.set_trace()
+    print("LLM GNN")
     args = get_command_line_args()    
     params_dict = load_yaml(args.yaml_path)
     # endpoint = params_dict.get('OPENAI_BASE', None)
