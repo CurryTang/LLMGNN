@@ -50,7 +50,7 @@ plt.show()
 
 
 
-# def plot_accuracy(accuracies1, accuracies2, accuracies3, accuracies4, accuracies5, accuracies6, accuracies7, accuracies8, color = ['blue'], title = 'fuck u'):
+# def plot_accuracy(accuracies1, accuracies2, accuracies3, accuracies4, accuracies5, accuracies6, accuracies7, accuracies8, color = ['blue'], title = 'test'):
 #     """
 #     Plot the average accuracy across epochs with variance among seeds.
 
