@@ -35,7 +35,7 @@ and finally install faiss
 We have provided the processed datasets via the following [google drive link](https://drive.google.com/drive/folders/1_laNA6eSQ6M5td2LvsEp3IL9qF6BC1KV?usp=sharing)
 
 To unzip the files, you need to
-1. unzip the `small_data.zip` into `xxx/LLMGNN/data/new`
+1. unzip the `small_data.zip` into `xxx/LLMGNN/data`
 2. Put wikics in the same directory
 3. If you want to use ogbn-products, unzip `big_data.zip` info `xxx/LLMGNN/data/new`
 4. Set the corresponding path in `config.yaml`
