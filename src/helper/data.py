@@ -472,7 +472,7 @@ def get_dataset(seeds, dataset, split, data_format, data_path, logit_path, rando
     if save_data:
         torch.save(data, osp.join(data_path, f"{dataset}_{split}_{data_format}.pt"))
     
-    print("fuck u")
+    print("load successfully")
     if dataset == 'products':
         ## optimize according to OGB
         if osp.exists("{}/products_adj.pt".format(GLOBAL_RESULT_PATH)):
